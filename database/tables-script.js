@@ -229,12 +229,10 @@ INSERT INTO OrderItems (OrderID, PizzaID, DessertID, RefreshmentID, Quantity, Un
 ((SELECT OrderID FROM Orders WHERE TotalAmount = 22.97), NULL, NULL, (SELECT RefreshmentID FROM Refreshments WHERE RefreshmentName = 'Lemonade'), 1, 2.49);
 `;
 
-// Create a new PostgreSQL client
 const client = new Client({
     connectionString: databaseUrl,
 });
 
-// Function to execute the SQL commands
 async function executeSQL() {
     try {
         console.log('Connecting to the database...');
