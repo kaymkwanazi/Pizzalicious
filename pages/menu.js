@@ -7,8 +7,8 @@ import { PiPizzaDuotone } from "react-icons/pi";
 import { LuDessert } from "react-icons/lu";
 import { LiaCocktailSolid } from "react-icons/lia";
 import PizzaMenu from '../components/Pizzas/PizzaMenu';
-
-
+import DessertMenu from '../components/Desserts/DessertMenu';
+import RefreshmentMenu from '../components/Refreshments/RefreshmentMenu';
 
 const TabPanel = (props) => {
     const { children, value, index, ...other } = props;
@@ -49,12 +49,12 @@ const Menu = () => {
         {
             label: 'Desserts',
             icon: <LuDessert style={{ fontSize: '22px' }}/>,
-            content: 'Check out our sweet desserts!',
+            content: <DessertMenu />,
         },
         {
             label: 'Refreshments',
             icon: <LiaCocktailSolid style={{ fontSize: '25px' }}/>,
-            content: 'Enjoy our refreshing drinks!',
+            content: <RefreshmentMenu />,
         },
     ];
 

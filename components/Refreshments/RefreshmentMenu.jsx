@@ -4,9 +4,11 @@ import { red } from '@mui/material/colors';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import SortIcon from '@mui/icons-material/Sort';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 
+// Sample pizza data
 const pizzas = [
   { id: 1, name: 'Margherita', description: 'Classic pizza with tomato and mozzarella', image: 'https://via.placeholder.com/150', price: 12.99 },
   { id: 2, name: 'Pepperoni', description: 'Spicy pepperoni with cheese and sauce', image: 'https://via.placeholder.com/150', price: 14.99 },
@@ -18,11 +20,11 @@ const pizzas = [
   { id: 8, name: 'Buffalo Chicken', description: 'Spicy buffalo chicken', image: 'https://via.placeholder.com/150', price: 15.49 },
 ];
 
-const PizzaMenu = () => {
+const RefreshmentMenu = () => {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortOrder, setSortOrder] = useState(null);
-  const itemsPerPage = 6;
+  const [sortOrder, setSortOrder] = useState(null); // null, 'asc', or 'desc'
+  const itemsPerPage = 6; // 3 columns x 2 rows
 
   const handlePageChange = (event, value) => {
     setPage(value);
@@ -30,13 +32,14 @@ const PizzaMenu = () => {
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value.toLowerCase());
-    setPage(1); 
+    setPage(1); // Reset to the first page when searching
   };
 
   const handleSortToggle = () => {
     setSortOrder((prevOrder) => (prevOrder === 'asc' ? 'desc' : 'asc'));
   };
 
+  // Filter and sort pizzas
   const filteredPizzas = pizzas
     .filter((pizza) => pizza.name.toLowerCase().includes(searchTerm))
     .sort((a, b) => {
@@ -71,7 +74,7 @@ const PizzaMenu = () => {
         spacing={2}
         sx={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)', 
+          gridTemplateColumns: 'repeat(3, 1fr)', // 3 columns
           gap: '16px',
         }}
       >
@@ -126,4 +129,4 @@ const PizzaMenu = () => {
   );
 };
 
-export default PizzaMenu;
+export default RefreshmentMenu;
