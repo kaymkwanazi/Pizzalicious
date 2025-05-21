@@ -2,6 +2,7 @@ const { Client } = require('pg');
 require('dotenv').config();
 
 const databaseUrl = process.env.DATABASE_URL;
+console.log("🚀 ~ databaseUrl:", databaseUrl)
 
 if (!databaseUrl) {
     console.error('DATABASE_URL is not defined in the .env file.');
@@ -9,6 +10,22 @@ if (!databaseUrl) {
 }
 
 const sqlCommands = `
+-- Drop tables if they exist to avoid conflicts
+DROP TABLE IF EXISTS OrderItems;
+DROP TABLE IF EXISTS OrderDetails;
+DROP TABLE IF EXISTS Orders;
+DROP TABLE IF EXISTS OrderStatuses;
+DROP TABLE IF EXISTS UserRoles;
+DROP TABLE IF EXISTS Users;
+DROP TABLE IF EXISTS Roles;
+DROP TABLE IF EXISTS DessertIngredients;
+DROP TABLE IF EXISTS Desserts;
+DROP TABLE IF EXISTS PizzaIngredients;
+DROP TABLE IF EXISTS Pizzas;
+DROP TABLE IF EXISTS Ingredients;
+DROP TABLE IF EXISTS Refreshments;
+DROP TABLE IF EXISTS PizzaBases;
+
 -- Creating Pizzalicious database schema with UUID primary keys
 
 -- Table for Pizza Bases
@@ -237,6 +254,8 @@ async function executeSQL() {
     try {
         console.log('Connecting to the database...');
         await client.connect();
+
+        console.log("🚀 ~ databaseUrl:", databaseUrl)
 
         console.log('Executing SQL commands...');
         await client.query(sqlCommands);
