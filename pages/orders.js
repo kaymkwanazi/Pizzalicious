@@ -18,6 +18,7 @@ import {
 } from '@mui/material';
 import DoneIcon from '@mui/icons-material/Done';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import ExpandCircleDownIcon from '@mui/icons-material/ExpandCircleDown';
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
@@ -29,6 +30,7 @@ export default function Orders() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [expandedRow, setExpandedRow] = useState(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -68,12 +70,10 @@ export default function Orders() {
       );
     }
 
-    // Filter by status
     if (statusFilter) {
       updatedOrders = updatedOrders.filter((order) => order.status === statusFilter);
     }
 
-    // Sort by date
     updatedOrders.sort((a, b) => {
       const dateA = new Date(a.orderDate);
       const dateB = new Date(b.orderDate);
@@ -105,6 +105,11 @@ export default function Orders() {
     }
   };
 
+  const toggleRow = (rowId) => {
+    setExpandedRow(expandedRow === rowId ? null : rowId); 
+  };
+
+
   if (loading) return <Typography variant="h6">Loading...</Typography>;
   if (error) return <Typography variant="h6" color="error">Error: {error}</Typography>;
 
@@ -114,7 +119,6 @@ export default function Orders() {
         Orders
       </Typography>
 
-      {/* Search and Filter Section */}
       <div style={{ display: 'flex', justifyContent: 'space-between', margin: '20px' }}>
         <TextField
           label="Search by Order Ref or Username"
@@ -147,111 +151,156 @@ export default function Orders() {
             <MenuItem value="desc">Descending</MenuItem>
           </Select>
         </FormControl>
-      </div>
-
-      <TableContainer style={{ margin: '20px auto', }} component={Paper}>
+      </div>      
+    <TableContainer style={{ margin: '20px auto' }} component={Paper}>
         <Table>
-          <TableHead>
+        <TableHead>
             <TableRow>
-              <TableCell><strong>Order Reference Number</strong></TableCell>
-              <TableCell><strong>Order Date</strong></TableCell>
-              <TableCell><strong>Total Amount</strong></TableCell>
-              <TableCell><strong>Username</strong></TableCell>
-              <TableCell><strong>Status</strong></TableCell>
-              <TableCell><strong>Update</strong></TableCell>
+            <TableCell></TableCell> 
+            <TableCell><strong>Order Reference Number</strong></TableCell>
+            <TableCell><strong>Order Date</strong></TableCell>
+            <TableCell><strong>Total Amount</strong></TableCell>
+            <TableCell><strong>Username</strong></TableCell>
+            <TableCell><strong>Status</strong></TableCell>
+            <TableCell><strong>Update</strong></TableCell>
             </TableRow>
-          </TableHead>
-          <TableBody>
+        </TableHead>
+        <TableBody>
             {filteredOrders.map((order) => (
-              <TableRow key={order.id}>
+            <>
+                <TableRow key={order.id}>
+                <TableCell>
+                    <IconButton onClick={() => toggleRow(order.id)}>
+                    <ExpandCircleDownIcon />
+                    </IconButton>
+                </TableCell>
                 <TableCell>{order.orderRef}</TableCell>
                 <TableCell>{new Date(order.orderDate).toLocaleString()}</TableCell>
                 <TableCell>R{order.totalAmount.toFixed(2)}</TableCell>
                 <TableCell>{order.username}</TableCell>
                 <TableCell>
-                  <Typography
+                    <Typography
                     variant="body2"
                     style={{
-                      border: `2px solid ${
+                        border: `2px solid ${
                         order.status === 'Pending'
-                          ? 'orange'
-                          : order.status === 'Collected'
-                          ? 'blue'
-                          : order.status === 'Delivered'
-                          ? 'green'
-                          : 'gray'
-                      }`,
-                      borderRadius: '8px',
-                      padding: '5px 10px',
-                      textAlign: 'center',
-                      color: `${
+                            ? 'orange'
+                            : order.status === 'Collected'
+                            ? 'blue'
+                            : order.status === 'Delivered'
+                            ? 'green'
+                            : 'gray'
+                        }`,
+                        borderRadius: '8px',
+                        padding: '5px 10px',
+                        textAlign: 'center',
+                        color: `${
                         order.status === 'Pending'
-                          ? 'orange'
-                          : order.status === 'Collected'
-                          ? 'blue'
-                          : order.status === 'Delivered'
-                          ? 'green'
-                          : 'gray'
-                      }`,
-                      fontWeight: 'bold',
+                            ? 'orange'
+                            : order.status === 'Collected'
+                            ? 'blue'
+                            : order.status === 'Delivered'
+                            ? 'green'
+                            : 'gray'
+                        }`,
+                        fontWeight: 'bold',
                     }}
-                  >
+                    >
                     {order.status}
-                  </Typography>
+                    </Typography>
                 </TableCell>
                 <TableCell>
-                  {order.status === 'Pending' ? (
+                    {order.status === 'Pending' ? (
                     <>
-                      <IconButton
+                        <IconButton
                         onClick={(event) => setAnchorEl(event.currentTarget)}
                         style={{
-                          margin: '0 auto',
-                          display: 'block',
+                            margin: '0 auto',
+                            display: 'block',
                         }}
-                      >
+                        >
                         <MoreHorizIcon />
-                      </IconButton>
-                      <Menu
+                        </IconButton>
+                        <Menu
                         anchorEl={anchorEl}
                         open={Boolean(anchorEl)}
                         onClose={() => setAnchorEl(null)}
-                      >
+                        >
                         {orderStatuses
-                          .filter((status) => status.name !== 'Pending')
-                          .map((status) => (
+                            .filter((status) => status.name !== 'Pending')
+                            .map((status) => (
                             <MenuItem
-                              key={status.id}
-                              onClick={() => {
+                                key={status.id}
+                                onClick={() => {
                                 handleStatusChange(order.id, status.name);
                                 setAnchorEl(null);
-                              }}
+                                }}
                             >
-                              <strong>{status.name}</strong> - {status.description}
+                                <strong>{status.name}</strong> - {status.description}
                             </MenuItem>
-                          ))}
-                      </Menu>
+                            ))}
+                        </Menu>
                     </>
-                  ) : (
+                    ) : (
                     <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      style={{
+                        variant="body2"
+                        color="textSecondary"
+                        style={{
                         textAlign: 'center',
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
                         height: '100%',
-                      }}
+                        }}
                     >
-                      <DoneIcon />
+                        <DoneIcon />
                     </Typography>
-                  )}
+                    )}
                 </TableCell>
-              </TableRow>
+                </TableRow>
+
+                {/* Expanded Row */}
+                {expandedRow === order.id && (
+                  <TableRow>
+                    <TableCell colSpan={6}>
+                      <div style={{ padding: '10px', backgroundColor: '#f9f9f9' }}>
+                        <Typography variant="h6">Customer Details</Typography>
+                        <Typography><strong>Name:</strong> {order.customer.name}</Typography>
+                        <Typography><strong>Address:</strong> {order.customer.address}</Typography>
+                        <Typography><strong>Phone:</strong> {order.customer.phone}</Typography>
+                        <Typography><strong>Email:</strong> {order.customer.email}</Typography>
+                        <Typography><strong>Delivery Instructions:</strong> {order.customer.deliveryInstructions}</Typography>
+
+                        <Typography variant="h6" style={{ marginTop: '10px' }}>Items</Typography>
+                        <Table size="small">
+                          <TableHead>
+                            <TableRow>
+                              <TableCell><strong>Item Name</strong></TableCell>
+                              <TableCell><strong>Quantity</strong></TableCell>
+                              <TableCell><strong>Unit Price</strong></TableCell>
+                              <TableCell><strong>Total Price</strong></TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {order.items.map((item) => (
+                              <TableRow key={item.itemId}>
+                                <TableCell>{item.name}</TableCell>
+                                <TableCell>{item.quantity}</TableCell>
+                                <TableCell>R{item.unitPrice.toFixed(2)}</TableCell>
+                                <TableCell>R{(item.quantity * item.unitPrice).toFixed(2)}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+            </>
             ))}
-          </TableBody>
+        </TableBody>
         </Table>
-      </TableContainer>
+    </TableContainer>
     </>
   );
 }

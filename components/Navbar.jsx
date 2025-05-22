@@ -10,12 +10,14 @@ import HomeIcon from '@mui/icons-material/Home';
 import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
 import ContactMailIcon from '@mui/icons-material/ContactMail';
 import ShoppingBasketIcon from '@mui/icons-material/ShoppingBasket';
+import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 
 const Navbar = () => {
   const menuItems = [
     { name: 'Home', icon: <HomeIcon />, url: '/' },
     { name: 'Menu', icon: <RestaurantMenuIcon />, url: '/menu' },
     { name: 'Orders', icon: <ShoppingBasketIcon />, url: '/orders' },
+    { name: 'Statistics', icon: <AutoGraphIcon />, url: '/statistics' },
     { name: 'Contact', icon: <ContactMailIcon />, url: '/contact' },
   ];
 
