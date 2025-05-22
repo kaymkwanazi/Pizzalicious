@@ -2,7 +2,7 @@ const { Client } = require('pg');
 require('dotenv').config();
 
 const databaseUrl = process.env.DATABASE_URL;
-console.log("🚀 ~ databaseUrl:", databaseUrl)
+console.log("🚀 ~ databaseUrl:", databaseUrl);
 
 if (!databaseUrl) {
     console.error('DATABASE_URL is not defined in the .env file.');
@@ -11,6 +11,7 @@ if (!databaseUrl) {
 
 const sqlCommands = `
 -- Drop tables if they exist to avoid conflicts
+DROP TABLE IF EXISTS PizzaToppings;
 DROP TABLE IF EXISTS OrderItems;
 DROP TABLE IF EXISTS OrderDetails;
 DROP TABLE IF EXISTS Orders;
@@ -161,6 +162,15 @@ CREATE TABLE OrderItems (
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 🍕 New Table: Pizza Toppings (custom per order item)
+CREATE TABLE PizzaToppings (
+    ToppingID UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    OrderItemID UUID REFERENCES OrderItems(OrderItemID) ON DELETE CASCADE,
+    IngredientID UUID REFERENCES Ingredients(IngredientID),
+    AddedPrice DECIMAL(10,2) DEFAULT 0.00,
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Indexes for improved performance
 CREATE INDEX idx_pizzas_baseid ON Pizzas(BaseID);
 CREATE INDEX idx_orders_userid ON Orders(UserID);
@@ -168,82 +178,95 @@ CREATE INDEX idx_orders_statusid ON Orders(StatusID);
 CREATE INDEX idx_orderdetails_orderid ON OrderDetails(OrderID);
 CREATE INDEX idx_orderitems_orderid ON OrderItems(OrderID);
 
--- Insert test data (2 records per table)
+-- Insert test data
 
--- Insert into PizzaBases (already provided)
+-- PizzaBases
 INSERT INTO PizzaBases (BaseName, Description) VALUES
 ('Thin Crust', 'Crispy and light pizza base'),
 ('Thick Crust', 'Soft and chewy pizza base');
 
--- Insert into Ingredients (already provided)
+-- Ingredients
 INSERT INTO Ingredients (IngredientName, IsVegan, IsGlutenFree) VALUES
 ('Mozzarella Cheese', FALSE, TRUE),
 ('Tomato Sauce', TRUE, TRUE);
 
--- Insert into Pizzas (already provided)
+-- Pizzas
 INSERT INTO Pizzas (PizzaName, BaseID, Price, ImageURL, Description) VALUES
 ('Margherita', (SELECT BaseID FROM PizzaBases WHERE BaseName = 'Thin Crust'), 12.99, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkqQv_OWlwUjUtOVW2_FhN3qeyctB8VgekDg&s', 'Classic pizza with tomato and mozzarella'),
 ('Pepperoni', (SELECT BaseID FROM PizzaBases WHERE BaseName = 'Thick Crust'), 14.99, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ2f38jmDq8OZhG72KpH345LC9teABsdTXrqg&s', 'Spicy pepperoni with cheese and sauce');
 
--- Insert into PizzaIngredients
+-- PizzaIngredients
 INSERT INTO PizzaIngredients (PizzaID, IngredientID) VALUES
 ((SELECT PizzaID FROM Pizzas WHERE PizzaName = 'Margherita'), (SELECT IngredientID FROM Ingredients WHERE IngredientName = 'Mozzarella Cheese')),
 ((SELECT PizzaID FROM Pizzas WHERE PizzaName = 'Margherita'), (SELECT IngredientID FROM Ingredients WHERE IngredientName = 'Tomato Sauce')),
 ((SELECT PizzaID FROM Pizzas WHERE PizzaName = 'Pepperoni'), (SELECT IngredientID FROM Ingredients WHERE IngredientName = 'Mozzarella Cheese')),
 ((SELECT PizzaID FROM Pizzas WHERE PizzaName = 'Pepperoni'), (SELECT IngredientID FROM Ingredients WHERE IngredientName = 'Tomato Sauce'));
 
--- Insert into Desserts
+-- Desserts
 INSERT INTO Desserts (DessertName, Price, ImageURL, Description) VALUES
 ('Chocolate Lava Cake', 6.99, 'https://www.billyparisi.com/wp-content/uploads/2022/02/lava-cake-1.jpg', 'Warm chocolate cake with a gooey center'),
 ('Tiramisu', 5.99, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbJYSqFnQMvHvkNrTikChMT4_lU3PAR0Toeg&s', 'Classic Italian dessert with coffee and cream');
 
--- Insert into DessertIngredients
+-- DessertIngredients
 INSERT INTO DessertIngredients (DessertID, IngredientID) VALUES
 ((SELECT DessertID FROM Desserts WHERE DessertName = 'Chocolate Lava Cake'), (SELECT IngredientID FROM Ingredients WHERE IngredientName = 'Mozzarella Cheese')),
 ((SELECT DessertID FROM Desserts WHERE DessertName = 'Tiramisu'), (SELECT IngredientID FROM Ingredients WHERE IngredientName = 'Mozzarella Cheese'));
 
--- Insert into Refreshments
+-- Refreshments
 INSERT INTO Refreshments (RefreshmentName, Price, ImageURL, Description) VALUES
 ('Cola', 2.99, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8OhMtoFHljiP1lTtpzSODXTu_-dJC1MpBrw&s', 'Refreshing carbonated cola drink'),
 ('Lemonade', 2.49, 'https://tofubud.com/cdn/shop/articles/is_lemonade_good_for_you_973715f3-4b84-479c-979c-1c126eab54bb_1024x.jpg?v=1612872855', 'Freshly squeezed lemonade');
 
--- Insert into Roles
+-- Roles
 INSERT INTO Roles (RoleName, Description) VALUES
 ('Customer', 'Regular customer with ordering privileges'),
 ('Admin', 'Administrator with full system access');
 
--- Insert into Users
+-- Users
 INSERT INTO Users (Username, Email, PasswordHash, FirstName, LastName) VALUES
 ('johndoe', 'john@example.com', '1234', 'John', 'Doe'),
 ('janedoe', 'jane@example.com', '1234', 'Jane', 'Doe');
 
--- Insert into UserRoles
+-- UserRoles
 INSERT INTO UserRoles (UserID, RoleID) VALUES
 ((SELECT UserID FROM Users WHERE Username = 'johndoe'), (SELECT RoleID FROM Roles WHERE RoleName = 'Customer')),
 ((SELECT UserID FROM Users WHERE Username = 'janedoe'), (SELECT RoleID FROM Roles WHERE RoleName = 'Admin'));
 
--- Insert into OrderStatuses
+-- OrderStatuses
 INSERT INTO OrderStatuses (StatusName, Description) VALUES
 ('Pending', 'Order is being processed'),
 ('Delivered', 'Order has been delivered to the customer');
 
--- Insert into Orders
+-- Orders
 INSERT INTO Orders (UserID, StatusID, TotalAmount) VALUES
 ((SELECT UserID FROM Users WHERE Username = 'johndoe'), (SELECT StatusID FROM OrderStatuses WHERE StatusName = 'Pending'), 15.98),
 ((SELECT UserID FROM Users WHERE Username = 'janedoe'), (SELECT StatusID FROM OrderStatuses WHERE StatusName = 'Delivered'), 22.97);
 
--- Insert into OrderDetails
+-- OrderDetails
 INSERT INTO OrderDetails (OrderID, CustomerName, CustomerAddress, CustomerPhone, CustomerEmail, DeliveryInstructions) VALUES
 ((SELECT OrderID FROM Orders WHERE TotalAmount = 15.98), 'John Doe', '123 Main St, City', '555-0123', 'john@example.com', 'Leave at front door'),
 ((SELECT OrderID FROM Orders WHERE TotalAmount = 22.97), 'Jane Doe', '456 Elm St, City', '555-0456', 'jane@example.com', 'Ring doorbell');
 
--- Insert into OrderItems
+-- OrderItems
 INSERT INTO OrderItems (OrderID, PizzaID, DessertID, RefreshmentID, Quantity, UnitPrice) VALUES
 ((SELECT OrderID FROM Orders WHERE TotalAmount = 15.98), (SELECT PizzaID FROM Pizzas WHERE PizzaName = 'Margherita'), NULL, NULL, 1, 12.99),
 ((SELECT OrderID FROM Orders WHERE TotalAmount = 15.98), NULL, NULL, (SELECT RefreshmentID FROM Refreshments WHERE RefreshmentName = 'Cola'), 1, 2.99),
 ((SELECT OrderID FROM Orders WHERE TotalAmount = 22.97), (SELECT PizzaID FROM Pizzas WHERE PizzaName = 'Pepperoni'), NULL, NULL, 1, 14.99),
 ((SELECT OrderID FROM Orders WHERE TotalAmount = 22.97), NULL, (SELECT DessertID FROM Desserts WHERE DessertName = 'Chocolate Lava Cake'), NULL, 1, 6.99),
 ((SELECT OrderID FROM Orders WHERE TotalAmount = 22.97), NULL, NULL, (SELECT RefreshmentID FROM Refreshments WHERE RefreshmentName = 'Lemonade'), 1, 2.49);
+
+-- PizzaToppings
+INSERT INTO PizzaToppings (OrderItemID, IngredientID, AddedPrice) VALUES
+(
+    (SELECT OrderItemID FROM OrderItems WHERE PizzaID = (SELECT PizzaID FROM Pizzas WHERE PizzaName = 'Margherita') LIMIT 1),
+    (SELECT IngredientID FROM Ingredients WHERE IngredientName = 'Mozzarella Cheese'),
+    1.00
+),
+(
+    (SELECT OrderItemID FROM OrderItems WHERE PizzaID = (SELECT PizzaID FROM Pizzas WHERE PizzaName = 'Pepperoni') LIMIT 1),
+    (SELECT IngredientID FROM Ingredients WHERE IngredientName = 'Tomato Sauce'),
+    0.50
+);
 `;
 
 const client = new Client({

@@ -1,28 +1,35 @@
-import React, { useState } from 'react';
-import { Grid, Pagination, Card, CardHeader, CardMedia, CardContent, CardActions, IconButton, Typography, Avatar, TextField, Box, Button } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Grid, Pagination, Card, CardHeader, CardMedia, CardContent, CardActions, IconButton, Typography, Avatar, TextField, Box, Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { red } from '@mui/material/colors';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-
-const pizzas = [
-  { id: 1, name: 'Margherita', description: 'Classic pizza with tomato and mozzarella', image: 'https://via.placeholder.com/150', price: 12.99 },
-  { id: 2, name: 'Pepperoni', description: 'Spicy pepperoni with cheese and sauce', image: 'https://via.placeholder.com/150', price: 14.99 },
-  { id: 3, name: 'Veggie', description: 'Loaded with fresh vegetables', image: 'https://via.placeholder.com/150', price: 13.99 },
-  { id: 4, name: 'BBQ Chicken', description: 'Grilled chicken with BBQ sauce', image: 'https://via.placeholder.com/150', price: 15.99 },
-  { id: 5, name: 'Hawaiian', description: 'Ham and pineapple', image: 'https://via.placeholder.com/150', price: 14.49 },
-  { id: 6, name: 'Meat Lovers', description: 'Loaded with all kinds of meat', image: 'https://via.placeholder.com/150', price: 16.99 },
-  { id: 7, name: 'Cheese', description: 'Extra cheesy goodness', image: 'https://via.placeholder.com/150', price: 11.99 },
-  { id: 8, name: 'Buffalo Chicken', description: 'Spicy buffalo chicken', image: 'https://via.placeholder.com/150', price: 15.49 },
-];
+import { FaRegEye } from "react-icons/fa";
 
 const PizzaMenu = () => {
+  const [pizzas, setPizzas] = useState([]);
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState(null);
+  const [selectedPizza, setSelectedPizza] = useState(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const itemsPerPage = 6;
+
+  useEffect(() => {
+    const fetchPizzas = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/Pizzas');
+        const data = await response.json();
+        setPizzas(data);
+      } catch (error) {
+        console.error('Error fetching pizzas:', error);
+      }
+    };
+
+    fetchPizzas();
+  }, []);
 
   const handlePageChange = (event, value) => {
     setPage(value);
@@ -30,11 +37,21 @@ const PizzaMenu = () => {
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value.toLowerCase());
-    setPage(1); 
+    setPage(1);
   };
 
   const handleSortToggle = () => {
     setSortOrder((prevOrder) => (prevOrder === 'asc' ? 'desc' : 'asc'));
+  };
+
+  const handleDialogOpen = (pizza) => {
+    setSelectedPizza(pizza);
+    setDialogOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    setSelectedPizza(null);
   };
 
   const filteredPizzas = pizzas
@@ -71,7 +88,7 @@ const PizzaMenu = () => {
         spacing={2}
         sx={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)', 
+          gridTemplateColumns: 'repeat(3, 1fr)',
           gap: '16px',
         }}
       >
@@ -85,8 +102,8 @@ const PizzaMenu = () => {
                   </Avatar>
                 }
                 action={
-                  <IconButton aria-label="settings">
-                    <MoreVertIcon />
+                  <IconButton aria-label="view details" onClick={() => handleDialogOpen(pizza)}>
+                    <FaRegEye />
                   </IconButton>
                 }
                 title={pizza.name}
@@ -95,13 +112,16 @@ const PizzaMenu = () => {
               <CardMedia
                 component="img"
                 height="150"
-                image={pizza.image}
+                image={pizza.imageUrl}
                 alt={pizza.name}
                 sx={{ objectFit: 'cover' }}
               />
               <CardContent sx={{ flexGrow: 1 }}>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" color="text.secondary" sx={{ marginBottom: '8px' }}>
                   {pizza.description}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  <strong>Ingredients:</strong> {pizza.ingredients.join(', ')}
                 </Typography>
               </CardContent>
               <CardActions disableSpacing>
@@ -122,6 +142,38 @@ const PizzaMenu = () => {
         onChange={handlePageChange}
         sx={{ display: 'flex', justifyContent: 'center', marginTop: '16px' }}
       />
+
+      <Dialog 
+        open={dialogOpen} 
+        onClose={handleDialogClose} 
+        maxWidth="md" 
+        fullWidth
+      >
+        <DialogTitle sx={{fontWeight: 'bold'}}>{selectedPizza?.name}</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <img 
+              src={selectedPizza?.imageUrl} 
+              alt={selectedPizza?.name} 
+              style={{ width: '100%', maxHeight: '300px', objectFit: 'cover', marginBottom: '16px' }} 
+            />
+            <Typography variant="body1" sx={{ marginBottom: '8px' }}>
+              <strong>Description:</strong> {selectedPizza?.description}
+            </Typography>
+            <Typography variant="body1" sx={{ marginBottom: '8px' }}>
+              <strong>Price:</strong> ${selectedPizza?.price.toFixed(2)}
+            </Typography>
+            <Typography variant="body1">
+              <strong>Ingredients:</strong> {selectedPizza?.ingredients.join(', ')}
+            </Typography>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogClose} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
