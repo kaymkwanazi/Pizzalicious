@@ -91,7 +91,6 @@ export async function GET() {
     });
   }
 }
-
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     const response = await GET();

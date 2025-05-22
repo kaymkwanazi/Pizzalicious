@@ -135,6 +135,7 @@ CREATE TABLE Orders (
     StatusID UUID REFERENCES OrderStatuses(StatusID),
     OrderDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     TotalAmount DECIMAL(10,2) NOT NULL CHECK (TotalAmount >= 0),
+    OrderRefNumber VARCHAR(20) NOT NULL UNIQUE,
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -235,12 +236,24 @@ INSERT INTO UserRoles (UserID, RoleID) VALUES
 -- OrderStatuses
 INSERT INTO OrderStatuses (StatusName, Description) VALUES
 ('Pending', 'Order is being processed'),
+('Collected', 'Order is being processed and collected in store'),
 ('Delivered', 'Order has been delivered to the customer');
 
--- Orders
-INSERT INTO Orders (UserID, StatusID, TotalAmount) VALUES
-((SELECT UserID FROM Users WHERE Username = 'johndoe'), (SELECT StatusID FROM OrderStatuses WHERE StatusName = 'Pending'), 15.98),
-((SELECT UserID FROM Users WHERE Username = 'janedoe'), (SELECT StatusID FROM OrderStatuses WHERE StatusName = 'Delivered'), 22.97);
+-- Insert test data with unique OrderRefNumber
+-- Insert test data with unique OrderRefNumber
+INSERT INTO Orders (UserID, StatusID, TotalAmount, OrderRefNumber) VALUES
+(
+    (SELECT UserID FROM Users WHERE Username = 'johndoe'),
+    (SELECT StatusID FROM OrderStatuses WHERE StatusName = 'Pending'),
+    15.98,
+    'ORD-' || 'john' || '-' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDDHH24MISS') || '-' || nextval('order_ref_seq')
+),
+(
+    (SELECT UserID FROM Users WHERE Username = 'janedoe'),
+    (SELECT StatusID FROM OrderStatuses WHERE StatusName = 'Delivered'),
+    22.97,
+    'ORD-' || 'jane' || '-' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDDHH24MISS') || '-' || nextval('order_ref_seq')
+);
 
 -- OrderDetails
 INSERT INTO OrderDetails (OrderID, CustomerName, CustomerAddress, CustomerPhone, CustomerEmail, DeliveryInstructions) VALUES

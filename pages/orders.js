@@ -46,21 +46,23 @@ export default function Orders() {
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell><strong>Order ID</strong></TableCell>
+            <TableCell><strong>Order Reference Number</strong></TableCell>
             <TableCell><strong>Order Date</strong></TableCell>
             <TableCell><strong>Total Amount</strong></TableCell>
             <TableCell><strong>Username</strong></TableCell>
             <TableCell><strong>Status</strong></TableCell>
+            <TableCell><strong>Update</strong></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {orders.map((order) => (
             <TableRow key={order.id}>
-              <TableCell>{order.id}</TableCell>
+              <TableCell> </TableCell>
               <TableCell>{new Date(order.orderDate).toLocaleString()}</TableCell>
               <TableCell>R{order.totalAmount.toFixed(2)}</TableCell>
               <TableCell>{order.username}</TableCell>
               <TableCell>{order.status}</TableCell>
+              <TableCell></TableCell>
             </TableRow>
           ))}
         </TableBody>
