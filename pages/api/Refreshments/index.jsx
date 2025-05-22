@@ -52,7 +52,17 @@ export async function GET() {
   }
 }
 
+export default async function handler(req, res) {
+  if (req.method === 'GET') {
+    const response = await GET();
+    res.status(response.status).send(await response.text());
+  } else {
+    res.setHeader('Allow', ['GET']);
+    res.status(405).end(`Method ${req.method} Not Allowed`);
+  }
+}
+
 process.on('SIGTERM', async () => {
   await client.end();
   console.log('Database connection closed.');
-}); 
+});
