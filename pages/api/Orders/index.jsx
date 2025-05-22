@@ -92,6 +92,15 @@ export async function GET() {
   }
 }
 
+export default async function handler(req, res) {
+  if (req.method === 'GET') {
+    const response = await GET();
+    res.status(response.status).setHeader('Content-Type', response.headers.get('Content-Type')).send(await response.text());
+  } else {
+    res.status(405).json({ error: 'Method not allowed' });
+  }
+}
+
 process.on('SIGTERM', async () => {
   await client.end();
   console.log('Database connection closed.');

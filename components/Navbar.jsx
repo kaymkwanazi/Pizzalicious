@@ -9,11 +9,13 @@ import Box from '@mui/material/Box';
 import HomeIcon from '@mui/icons-material/Home';
 import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
 import ContactMailIcon from '@mui/icons-material/ContactMail';
+import ShoppingBasketIcon from '@mui/icons-material/ShoppingBasket';
 
 const Navbar = () => {
   const menuItems = [
     { name: 'Home', icon: <HomeIcon />, url: '/' },
     { name: 'Menu', icon: <RestaurantMenuIcon />, url: '/menu' },
+    { name: 'Orders', icon: <ShoppingBasketIcon />, url: '/orders' },
     { name: 'Contact', icon: <ContactMailIcon />, url: '/contact' },
   ];
 
