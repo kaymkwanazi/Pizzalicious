@@ -2,7 +2,6 @@ import { Client } from 'pg';
 import 'dotenv/config';
 
 const databaseUrl = process.env.DATABASE_URL;
-console.log("🚀 ~ databaseUrl:", databaseUrl)
 
 if (!databaseUrl) {
   console.error('DATABASE_URL is not defined in the .env file.');

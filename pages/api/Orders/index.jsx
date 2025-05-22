@@ -24,6 +24,7 @@ export async function GET() {
         o.OrderID,
         o.OrderDate,
         o.TotalAmount,
+        o.OrderRefNumber,
         u.Username,
         os.StatusName,
         od.CustomerName,
@@ -49,7 +50,7 @@ export async function GET() {
       LEFT JOIN Pizzas p ON oi.PizzaID = p.PizzaID
       LEFT JOIN Desserts d ON oi.DessertID = d.DessertID
       LEFT JOIN Refreshments r ON oi.RefreshmentID = r.RefreshmentID
-      GROUP BY o.OrderID, o.OrderDate, o.TotalAmount, u.Username, os.StatusName, 
+      GROUP BY o.OrderID, o.OrderDate, o.TotalAmount, o.OrderRefNumber, u.Username, os.StatusName, 
                od.CustomerName, od.CustomerAddress, od.CustomerPhone, od.CustomerEmail, od.DeliveryInstructions
       ORDER BY o.OrderDate DESC;
     `;
@@ -60,6 +61,7 @@ export async function GET() {
       id: order.orderid,
       orderDate: order.orderdate,
       totalAmount: parseFloat(order.totalamount),
+      orderRef: order.orderrefnumber, // Map OrderRefNumber to the response
       username: order.username,
       status: order.statusname,
       customer: {

@@ -27,6 +27,9 @@ DROP TABLE IF EXISTS Ingredients;
 DROP TABLE IF EXISTS Refreshments;
 DROP TABLE IF EXISTS PizzaBases;
 
+-- Create sequence for generating unique order reference numbers
+CREATE SEQUENCE IF NOT EXISTS order_ref_seq START 1;
+
 -- Creating Pizzalicious database schema with UUID primary keys
 
 -- Table for Pizza Bases
@@ -135,7 +138,7 @@ CREATE TABLE Orders (
     StatusID UUID REFERENCES OrderStatuses(StatusID),
     OrderDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     TotalAmount DECIMAL(10,2) NOT NULL CHECK (TotalAmount >= 0),
-    OrderRefNumber VARCHAR(20) NOT NULL UNIQUE,
+    OrderRefNumber TEXT NOT NULL UNIQUE,
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -288,6 +291,7 @@ const client = new Client({
 
 async function executeSQL() {
     try {
+
         console.log('Connecting to the database...');
         await client.connect();
 
