@@ -85,7 +85,7 @@ export default function Orders() {
 
   const handleStatusChange = async (orderId, newStatus) => {
     try {
-      const response = await fetch('/api/Orders/CRUD/update-status', {
+      const response = await fetch('/api/Orders/CRUD/update', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderId, statusName: newStatus }),

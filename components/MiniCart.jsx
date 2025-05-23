@@ -21,10 +21,42 @@ const MiniCart = () => {
     }));
   };
 
-  const handleCheckout = () => {
-    console.log('Order Details:', customerDetails);
-    console.log('Cart Items:', cart);
-    console.log('Total Amount:', totalAmount);
+  const handleCheckout = async () => {
+    const orderData = {
+      userId: "5aa00c56-41e7-4c40-b615-8ca0a83b83c8", 
+      items: cart.map((item) => ({
+        pizzaId: item.pizzaId || null,
+        dessertId: item.dessertId || null,
+        refreshmentId: item.refreshmentId || null,
+        quantity: item.quantity,
+        unitPrice: item.price,
+      })),
+      customerInfo: customerDetails,
+      totalAmount: totalAmount,
+    };
+  
+    try {
+      const response = await fetch('/api/Orders/CRUD/place', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      });
+  
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Order placed successfully:', result);
+        alert('Order placed successfully!');
+      } else {
+        const error = await response.json();
+        console.error('Error placing order:', error);
+        alert('Failed to place order. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error placing order:', error.message);
+      alert('An error occurred. Please try again.');
+    }
   };
 
   return (

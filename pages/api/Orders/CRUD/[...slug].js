@@ -2,6 +2,7 @@ const { Client } = require('pg');
 require('dotenv').config();
 
 const databaseUrl = process.env.DATABASE_URL;
+console.log("🚀 ~ databaseUrl:", databaseUrl)
 
 if (!databaseUrl) {
     console.error('DATABASE_URL is not defined in the .env file.');
@@ -60,7 +61,7 @@ async function handlePlaceOrder(req, res) {
     }
 }
 
-async function handleUpdateOrderStatus(req, res) {
+async function handleUpdateOrder(req, res) {
     if (req.method !== 'PUT') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
@@ -74,33 +75,44 @@ async function handleUpdateOrderStatus(req, res) {
     try {
         await client.connect();
 
-        // Update order status
-        const result = await client.query(
-            `UPDATE Orders
-             SET StatusID = (SELECT StatusID FROM OrderStatuses WHERE StatusName = $1)
-             WHERE OrderID = $2`,
-            [statusName, orderId]
+        // Get the corresponding StatusID for the provided statusName
+        const statusResult = await client.query(
+            `SELECT StatusID FROM OrderStatuses WHERE StatusName = $1`,
+            [statusName]
         );
 
-        if (result.rowCount === 0) {
-            return res.status(404).json({ error: 'Order not found or invalid status' });
+        if (statusResult.rows.length === 0) {
+            return res.status(400).json({ error: 'Invalid status name' });
         }
 
-        res.status(200).json({ message: 'Order status updated successfully' });
+        const statusId = statusResult.rows[0].statusid;
+
+        // Update the order status
+        await client.query(
+            `UPDATE Orders SET StatusID = $1 WHERE OrderID = $2`,
+            [statusId, orderId]
+        );
+
+        res.status(200).json({ message: 'Order updated successfully' });
     } catch (error) {
-        console.error('Error updating order status:', error.message);
+        console.error('Error updating order:', error.message);
         res.status(500).json({ error: 'Internal server error' });
     } finally {
         await client.end();
     }
 }
 
-module.exports = async (req, res) => {
-    if (req.url === '/place') {
-        await handlePlaceOrder(req, res);
-    } else if (req.url === '/update-status') {
-        await handleUpdateOrderStatus(req, res);
-    } else {
-        res.status(404).json({ error: 'Endpoint not found' });
-    }
-};
+
+export default async function handler(req, res) {
+  const slug = req.query.slug; // ['place'] or ['update']
+
+  const endpoint = slug?.[0];
+
+  if (endpoint === 'place') {
+    await handlePlaceOrder(req, res);
+  } else if (endpoint === 'update') {
+    await handleUpdateOrder(req, res);
+  } else {
+    res.status(404).json({ error: 'Endpoint not found' });
+  }
+}
