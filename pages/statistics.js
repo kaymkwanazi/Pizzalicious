@@ -2,13 +2,23 @@ import { useEffect, useState } from 'react';
 import { Bar, Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend } from 'chart.js';
 import { Typography } from '@mui/material';
+import { useUser } from '@/components/UserContext';
+import { useRouter } from 'next/router';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
 
 export default function Home() {
+  const { user } = useUser();
+  const router = useRouter();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (user?.role === 'Customer') {
+      router.push('/');
+    }
+  }, [user, router]);
 
   useEffect(() => {
     async function fetchData() {
@@ -75,11 +85,9 @@ export default function Home() {
           Sales and Orders Overview
         </Typography>
         <div style={{ display: 'flex', justifyContent: 'space-around', flexWrap: 'wrap' }}>
-          {/* Line Graph for Sales */}
           <div style={{ width: '45%', marginBottom: '20px' }}>
             <Line data={salesChartData} options={{ responsive: true, plugins: { legend: { position: 'top' } } }} />
           </div>
-          {/* Bar Chart for Orders */}
           <div style={{ width: '45%', marginBottom: '20px' }}>
             <Bar data={ordersChartData} options={{ responsive: true, plugins: { legend: { position: 'top' } } }} />
           </div>

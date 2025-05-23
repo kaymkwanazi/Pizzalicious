@@ -13,21 +13,27 @@ import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 import { Drawer } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import MiniCart from './MiniCart';
+import { useUser } from '@/components/UserContext';
 
 const Navbar = () => {
   const [cartOpen, setCartOpen] = useState(false);
+  const { user } = useUser();
 
   const menuItems = [
     { name: 'Home', icon: <HomeIcon />, url: '/' },
     { name: 'Menu', icon: <RestaurantMenuIcon />, url: '/menu' },
-    { name: 'Orders', icon: <ShoppingBasketIcon />, url: '/orders' },
-    { name: 'Statistics', icon: <AutoGraphIcon />, url: '/statistics' },
+    { name: 'Orders', icon: <ShoppingBasketIcon />, url: '/orders', restricted: true },
+    { name: 'Statistics', icon: <AutoGraphIcon />, url: '/statistics', restricted: true },
     { 
       name: 'My Cart', 
       icon: <ShoppingCartIcon />, 
       action: () => setCartOpen(true) 
     },
   ];
+
+  const filteredMenuItems = menuItems.filter(
+    (item) => !(item.restricted && user?.role === 'Customer')
+  );
 
   return (
     <AppBar position="static">
@@ -47,7 +53,7 @@ const Navbar = () => {
         </Typography>
 
         <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-          {menuItems.map((item, index) => (
+          {filteredMenuItems.map((item, index) => (
             <Button
               key={index}
               color="inherit"
