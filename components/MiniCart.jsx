@@ -4,7 +4,7 @@ import { Box, Typography, Button, IconButton, TextField } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 const MiniCart = () => {
-  const { cart, removeFromCart, totalAmount } = useCart();
+  const { cart, removeFromCart, totalAmount, clearCart } = useCart();
   const [customerDetails, setCustomerDetails] = useState({
     name: '',
     address: '',
@@ -48,7 +48,9 @@ const MiniCart = () => {
         const result = await response.json();
         console.log('Order placed successfully:', result);
         alert('Order placed successfully!');
-      } else {
+        clearCart();
+      }
+       else {
         const error = await response.json();
         console.error('Error placing order:', error);
         alert('Failed to place order. Please try again.');
