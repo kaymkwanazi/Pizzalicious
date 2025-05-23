@@ -27,7 +27,6 @@ async function handlePlaceOrder(req, res) {
     try {
         await client.connect();
 
-        // Insert into Orders table
         const orderResult = await client.query(
             `INSERT INTO Orders (UserID, StatusID, TotalAmount, OrderRefNumber)
              VALUES ($1, (SELECT StatusID FROM OrderStatuses WHERE StatusName = 'Pending'), $2, 'ORD-' || $3 || '-' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDDHH24MISS') || '-' || nextval('order_ref_seq'))
@@ -36,14 +35,12 @@ async function handlePlaceOrder(req, res) {
         );
         const orderId = orderResult.rows[0].orderid;
 
-        // Insert into OrderDetails table
         await client.query(
             `INSERT INTO OrderDetails (OrderID, CustomerName, CustomerAddress, CustomerPhone, CustomerEmail, DeliveryInstructions)
              VALUES ($1, $2, $3, $4, $5, $6)`,
             [orderId, customerInfo.name, customerInfo.address, customerInfo.phone, customerInfo.email, customerInfo.instructions]
         );
 
-        // Insert into OrderItems table
         for (const item of items) {
             await client.query(
                 `INSERT INTO OrderItems (OrderID, PizzaID, DessertID, RefreshmentID, Quantity, UnitPrice)
@@ -75,7 +72,6 @@ async function handleUpdateOrder(req, res) {
     try {
         await client.connect();
 
-        // Get the corresponding StatusID for the provided statusName
         const statusResult = await client.query(
             `SELECT StatusID FROM OrderStatuses WHERE StatusName = $1`,
             [statusName]
@@ -87,7 +83,6 @@ async function handleUpdateOrder(req, res) {
 
         const statusId = statusResult.rows[0].statusid;
 
-        // Update the order status
         await client.query(
             `UPDATE Orders SET StatusID = $1 WHERE OrderID = $2`,
             [statusId, orderId]
@@ -104,7 +99,7 @@ async function handleUpdateOrder(req, res) {
 
 
 export default async function handler(req, res) {
-  const slug = req.query.slug; // ['place'] or ['update']
+  const slug = req.query.slug; 
 
   const endpoint = slug?.[0];
 

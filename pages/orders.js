@@ -95,7 +95,6 @@ export default function Orders() {
         throw new Error(`Failed to update status! status: ${response.status}`);
       }
   
-      // Refetch the data after updating the status
       const ordersResponse = await fetch('/api/Orders');
       if (!ordersResponse.ok) {
         throw new Error(`Orders fetch error! status: ${ordersResponse.status}`);
