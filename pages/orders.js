@@ -85,25 +85,28 @@ export default function Orders() {
 
   const handleStatusChange = async (orderId, newStatus) => {
     try {
-      const response = await fetch(``, {
+      const response = await fetch('/api/Orders/CRUD/update-status', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify({ orderId, statusName: newStatus }),
       });
-
+  
       if (!response.ok) {
         throw new Error(`Failed to update status! status: ${response.status}`);
       }
-
-      setOrders((prevOrders) =>
-        prevOrders.map((order) =>
-          order.id === orderId ? { ...order, status: newStatus } : order
-        )
-      );
+  
+      // Refetch the data after updating the status
+      const ordersResponse = await fetch('/api/Orders');
+      if (!ordersResponse.ok) {
+        throw new Error(`Orders fetch error! status: ${ordersResponse.status}`);
+      }
+      const ordersData = await ordersResponse.json();
+      setOrders(ordersData);
+      setFilteredOrders(ordersData);
     } catch (err) {
       console.error('Error updating status:', err.message);
     }
-  };
+  }; 
 
   const toggleRow = (rowId) => {
     setExpandedRow(expandedRow === rowId ? null : rowId); 
