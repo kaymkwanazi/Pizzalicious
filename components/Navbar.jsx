@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -8,17 +8,25 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import HomeIcon from '@mui/icons-material/Home';
 import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
-import ContactMailIcon from '@mui/icons-material/ContactMail';
 import ShoppingBasketIcon from '@mui/icons-material/ShoppingBasket';
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
+import { Drawer } from '@mui/material';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import MiniCart from './MiniCart';
 
 const Navbar = () => {
+  const [cartOpen, setCartOpen] = useState(false);
+
   const menuItems = [
     { name: 'Home', icon: <HomeIcon />, url: '/' },
     { name: 'Menu', icon: <RestaurantMenuIcon />, url: '/menu' },
     { name: 'Orders', icon: <ShoppingBasketIcon />, url: '/orders' },
     { name: 'Statistics', icon: <AutoGraphIcon />, url: '/statistics' },
-    { name: 'Contact', icon: <ContactMailIcon />, url: '/contact' },
+    { 
+      name: 'My Cart', 
+      icon: <ShoppingCartIcon />, 
+      action: () => setCartOpen(true) 
+    },
   ];
 
   return (
@@ -43,8 +51,9 @@ const Navbar = () => {
             <Button
               key={index}
               color="inherit"
-              href={item.url} 
-              startIcon={item.icon} 
+              href={item.url || undefined} 
+              onClick={item.action || undefined} 
+              startIcon={item.icon}
               sx={{ textTransform: 'none' }}
             >
               {item.name}
@@ -52,6 +61,11 @@ const Navbar = () => {
           ))}
         </Box>
       </Toolbar>
+
+      {/* Drawer for MiniCart */}
+      <Drawer anchor="right" open={cartOpen} onClose={() => setCartOpen(false)}>
+        <MiniCart />
+      </Drawer>
     </AppBar>
   );
 };

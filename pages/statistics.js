@@ -40,11 +40,6 @@ export default function Home() {
     return acc;
   }, {});
 
-  const graphLabels = Object.keys(salesAndOrdersData);
-  console.log("🚀 ~ Home ~ salesAndOrdersData:", salesAndOrdersData)
-  const salesData = graphLabels.map((date) => salesAndOrdersData[date].sales);
-  const ordersData = graphLabels.map((date) => salesAndOrdersData[date].orders);
-
   const salesChartData = {
     labels: Object.keys(salesAndOrdersData), 
     datasets: [

@@ -6,6 +6,8 @@ import ShareIcon from '@mui/icons-material/Share';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { FaRegEye } from "react-icons/fa";
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import {useCart} from "@/components/CartContext";
 
 const DessertMenu = () => {
   const [desserts, setDesserts] = useState([]);
@@ -15,6 +17,7 @@ const DessertMenu = () => {
   const [selectedDessert, setSelectedDessert] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const itemsPerPage = 6;
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const fetchDesserts = async () => {
@@ -64,7 +67,7 @@ const DessertMenu = () => {
   const displayedDesserts = filteredDesserts.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   return (
-    <div sx={{ maxWidth: '1200px', margin: '0 auto', padding: '16px' }}>
+    <Box sx={{ maxWidth: '1200px', margin: '0 auto', padding: '16px' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
         <TextField
           label="Search by name"
@@ -121,11 +124,10 @@ const DessertMenu = () => {
                 </Typography>
               </CardContent>
               <CardActions disableSpacing>
-                <IconButton aria-label="add to favorites">
-                  <FavoriteIcon />
-                </IconButton>
-                <IconButton aria-label="share">
-                  <ShareIcon />
+                <IconButton aria-label="Add To Cart"
+                onClick={() => addToCart(dessert)}
+                >
+                  <ShoppingCartIcon />
                 </IconButton>
               </CardActions>
             </Card>
@@ -167,7 +169,7 @@ const DessertMenu = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </Box>
   );
 };
 
