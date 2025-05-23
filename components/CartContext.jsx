@@ -43,8 +43,6 @@ export const CartProvider = ({ children }) => {
     0
   );
 
-  console.log("🚀 ~ CartProvider ~ cart:", cart)
-
 
   return (
     <CartContext.Provider
