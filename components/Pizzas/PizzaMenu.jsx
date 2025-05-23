@@ -94,18 +94,24 @@ const PizzaMenu = () => {
   };
 
   const handleAddToCart = () => {
-    if (selectedPizza && selectedBase) {
-      addToCart({
-        ...selectedPizza,
-        base: selectedBase,
-        toppings: selectedToppings,
-      });
-      handleDialogClose();
-    } else {
+    if (!selectedBase) {
       alert("Please select a base for the pizza.");
+      return;
     }
+  
+    if (selectedToppings.length === 0) {
+      alert("Please select at least one topping for the pizza.");
+      return;
+    }
+  
+    addToCart({
+      ...selectedPizza,
+      base: selectedBase,
+      toppings: selectedToppings,
+    });
+    handleDialogClose();
   };
-
+  
   const handleToppingChange = (event) => {
     const topping = event.target.name;
     setSelectedToppings((prevToppings) =>

@@ -10,24 +10,30 @@ import HomeIcon from '@mui/icons-material/Home';
 import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
 import ShoppingBasketIcon from '@mui/icons-material/ShoppingBasket';
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
-import { Drawer } from '@mui/material';
+import { Drawer, Badge } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import MiniCart from './MiniCart';
 import { useUser } from '@/components/UserContext';
+import { useCart } from '@/components/CartContext';
 
 const Navbar = () => {
   const [cartOpen, setCartOpen] = useState(false);
   const { user } = useUser();
+  const { cart } = useCart();
 
   const menuItems = [
     { name: 'Home', icon: <HomeIcon />, url: '/' },
     { name: 'Menu', icon: <RestaurantMenuIcon />, url: '/menu' },
     { name: 'Orders', icon: <ShoppingBasketIcon />, url: '/orders', restricted: true },
     { name: 'Statistics', icon: <AutoGraphIcon />, url: '/statistics', restricted: true },
-    { 
-      name: 'My Cart', 
-      icon: <ShoppingCartIcon />, 
-      action: () => setCartOpen(true) 
+    {
+      name: 'My Cart',
+      icon: (
+        <Badge badgeContent={cart.reduce((total, item) => total + item.quantity, 0)} color="secondary">
+          <ShoppingCartIcon />
+        </Badge>
+      ),
+      action: () => setCartOpen(true),
     },
   ];
 
@@ -57,8 +63,8 @@ const Navbar = () => {
             <Button
               key={index}
               color="inherit"
-              href={item.url || undefined} 
-              onClick={item.action || undefined} 
+              href={item.url || undefined}
+              onClick={item.action || undefined}
               startIcon={item.icon}
               sx={{ textTransform: 'none' }}
             >

@@ -38,18 +38,31 @@ const MiniCart = () => {
             key={item.id}
             sx={{
               display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '8px',
+              flexDirection: 'column',
+              marginBottom: '16px',
             }}
           >
-            <Typography>
-              {item.name} x {item.quantity}
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <Typography>
+                {item.name} x {item.quantity}
+              </Typography>
+              <Typography>R{(item.price * item.quantity).toFixed(2)}</Typography>
+              <IconButton onClick={() => removeFromCart(item)}>
+                <DeleteIcon />
+              </IconButton>
+            </Box>
+            <Typography variant="body2" color="text.secondary" sx={{ marginLeft: '16px' }}>
+              Base: {item.base || 'None'}
             </Typography>
-            <Typography>R{(item.price * item.quantity).toFixed(2)}</Typography>
-            <IconButton onClick={() => removeFromCart(item.id)}>
-              <DeleteIcon />
-            </IconButton>
+            <Typography variant="body2" color="text.secondary" sx={{ marginLeft: '16px' }}>
+              Toppings: {item.toppings?.length > 0 ? item.toppings.join(', ') : 'None'}
+            </Typography>
           </Box>
         ))
       )}
